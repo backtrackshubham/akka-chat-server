@@ -3,7 +3,7 @@ package com.little.chat.actors
 import java.util.UUID
 
 import akka.actor.{Actor, Props}
-import com.little.chat.actors.BrokerCumConnectionManager.{GetClients, Poll}
+import akka.event.Logging
 import com.little.chat.response.Response.{ClientsResponse, PollFailed, PollSuccess, User}
 
 import scala.concurrent.ExecutionContext
@@ -39,30 +39,29 @@ class BrokerCumConnectionManager(implicit val ex: ExecutionContext) extends Acto
     refreshStatusesInterval.cancel()
     ()
   }
+  val log = Logging(context.system, this)
 
   var clients: Map[User, Long] = Map.empty[User, Long]
   override def receive: Receive = {
     case RemoveOldClients =>
-      println("-----------Got RemoveOldClients-----------")
-      println(clients)
       val cur = System.currentTimeMillis
       clients.filter(res => cur - res._2 > 7000).keys.foreach{ key =>
+        log.info(s"Removing user due to inactivity $key")
         clients = clients - key
       }
-      println(clients)
-      println("-----------Removed RemoveOldClients-----------")
     case user: User =>
+      log.info(s"Adding user $user")
       clients = clients + (user -> System.currentTimeMillis)
     case GetClients =>
-      sender() ! ClientsResponse(clients.keys.toList)
+            sender() ! ClientsResponse(clients.keys.toList)
     case Poll(id) =>
-      println(s"Received Poll from $id")
+      log.info(s"Received Poll from $id")
       if(!clients.keys.exists(_.id == id.toString)){
-        sender() ! PollFailed
+        sender() ! PollFailed()
       } else {
         val userToUpdate = clients.keys.filter(_.id == id.toString)
         clients = clients + (userToUpdate.head -> System.currentTimeMillis)
-        sender() ! PollSuccess
+        sender() ! PollSuccess()
       }
   }
 }

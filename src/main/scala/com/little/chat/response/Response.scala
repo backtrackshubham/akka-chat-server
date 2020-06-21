@@ -25,13 +25,17 @@ object Response {
   }
 
 
-  trait PollResponse
-
-  case object PollSuccess extends PollResponse
-  case class PollFailed(message: String = "Your session has been expired") extends PollResponse
+  case class PollSuccess(message: String = "Poll successful")
+  case class PollFailed(message: String = "Your session has been expired") extends Throwable
 
   object PollFailed {
     implicit val PollFailedFormat: RootJsonFormat[PollFailed] = jsonFormat1(PollFailed.apply)
   }
+
+
+  object PollSuccess {
+    implicit val PollSuccessFormat: RootJsonFormat[PollSuccess] = jsonFormat1(PollSuccess.apply)
+  }
+
 
 }
