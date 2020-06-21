@@ -7,6 +7,13 @@ object Response {
 
   case class User(id: String, name: String)
 
+  case class UserMessage(to: String, from: String, message: String, time: Long)
+
+
+  object UserMessage {
+    implicit val UserMessageFormat: RootJsonFormat[UserMessage] = jsonFormat4(UserMessage.apply)
+  }
+
 
   object User {
     implicit val UserFormat: RootJsonFormat[User] = jsonFormat2(User.apply)
@@ -25,8 +32,17 @@ object Response {
   }
 
 
-  case class PollSuccess(message: String = "Poll successful")
+  case class PollSuccess(unread: List[UnreadMessage] = List.empty[UnreadMessage])
+
   case class PollFailed(message: String = "Your session has been expired") extends Throwable
+
+
+  case class UnreadMessage(from: String, messages: List[UserMessage])
+
+  case object UnreadMessage {
+    implicit val UnreadMessageFormat: RootJsonFormat[UnreadMessage] = jsonFormat2(UnreadMessage.apply)
+  }
+
 
   object PollFailed {
     implicit val PollFailedFormat: RootJsonFormat[PollFailed] = jsonFormat1(PollFailed.apply)

@@ -4,7 +4,7 @@ import java.util.UUID
 
 import akka.actor.{Actor, Props}
 import akka.event.Logging
-import com.little.chat.response.Response.{ClientsResponse, PollFailed, PollSuccess, User}
+import com.little.chat.response.Response.{ClientsResponse, PollFailed, PollSuccess, UnreadMessage, User, UserMessage}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.FiniteDuration
@@ -42,6 +42,8 @@ class BrokerCumConnectionManager(implicit val ex: ExecutionContext) extends Acto
   val log = Logging(context.system, this)
 
   var clients: Map[User, Long] = Map.empty[User, Long]
+
+  var messages: Map[String, List[UserMessage]] = Map.empty[String, List[UserMessage]]
   override def receive: Receive = {
     case RemoveOldClients =>
       val cur = System.currentTimeMillis
@@ -61,7 +63,28 @@ class BrokerCumConnectionManager(implicit val ex: ExecutionContext) extends Acto
       } else {
         val userToUpdate = clients.keys.filter(_.id == id.toString)
         clients = clients + (userToUpdate.head -> System.currentTimeMillis)
-        sender() ! PollSuccess()
+        val unreadForUser = getPollResponse(id.toString)
+        messages = messages - (id.toString)
+        sender() ! PollSuccess(unreadForUser)
       }
+    case message@UserMessage(to, _, _, _) =>
+      if(messages.contains(to)) {
+        val list: List[UserMessage] = messages(to)
+        messages = messages + (to -> (message :: list))
+      } else {
+        messages = messages + (to -> List(message))
+      }
+  }
+
+  def getPollResponse(id: String): List[UnreadMessage] = {
+    if(messages.contains(id)) {
+      val allMessages = messages(id)
+      allMessages.foldLeft(Map.empty[String, UnreadMessage]){
+        case (map, nextMessage) =>
+          map.get(nextMessage.from).fold(map + (nextMessage.from -> UnreadMessage(nextMessage.from, List(nextMessage)))){ userMessage: UnreadMessage =>
+            map + (nextMessage.from -> userMessage.copy(messages = nextMessage :: userMessage.messages))
+          }
+      }.values.toList
+    } else List.empty[UnreadMessage]
   }
 }

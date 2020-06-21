@@ -12,8 +12,9 @@ import akka.util.Timeout
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 import com.little.chat.actors.BrokerCumConnectionManager
 import com.little.chat.actors.BrokerCumConnectionManager.{GetClients, Poll}
-import com.little.chat.response.Response.{ClientRegistered, ClientsResponse, PollSuccess, User}
+import com.little.chat.response.Response.{ClientRegistered, ClientsResponse, PollSuccess, User, UserMessage}
 
+import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.io.StdIn
 
@@ -36,13 +37,7 @@ object MainApplication extends App {
   val route = cors() {
     handleExceptions(myExceptionHandler) {
       implicit val timeout: Timeout = 5.seconds
-      pathPrefix("chat-with") {
-        path(JavaUUID) { _ =>
-          post {
-            complete(HttpEntity(ContentTypes.`application/json`, "<h1>Say hello to akka-http</h1>"))
-          }
-        }
-      } ~ path("poll" / JavaUUID) { id =>
+      path("poll" / JavaUUID) { id =>
         get {
           complete((broker ? Poll(id)).mapTo[PollSuccess])
         }
@@ -51,6 +46,13 @@ object MainApplication extends App {
           entity(as[User]) { registerRequest: User =>
             broker ! registerRequest
             complete(ClientRegistered(s"Client with ${registerRequest.id} successfully registered"))
+          }
+        }
+      } ~ path("send-message") {
+        post {
+          entity(as[UserMessage]) { userMessage: UserMessage =>
+            broker ! userMessage
+            complete(StatusCodes.OK)
           }
         }
       } ~ path("clients") {
