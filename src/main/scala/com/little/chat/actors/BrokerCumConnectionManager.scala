@@ -57,7 +57,7 @@ class BrokerCumConnectionManager(implicit val ex: ExecutionContext) extends Acto
     case GetClients =>
             sender() ! ClientsResponse(clients.keys.toList)
     case Poll(id) =>
-      log.info(s"Received Poll from $id")
+      log.debug(s"Received Poll from $id")
       if(!clients.keys.exists(_.id == id.toString)){
         sender() ! PollFailed()
       } else {

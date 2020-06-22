@@ -14,7 +14,6 @@ import com.little.chat.actors.BrokerCumConnectionManager
 import com.little.chat.actors.BrokerCumConnectionManager.{GetClients, Poll}
 import com.little.chat.response.Response.{ClientRegistered, ClientsResponse, PollSuccess, User, UserMessage}
 
-import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.io.StdIn
 
