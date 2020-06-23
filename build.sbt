@@ -2,7 +2,8 @@ val akkaHttp = "com.typesafe.akka" %% "akka-http"   % "10.1.12"
 val akkaStream = "com.typesafe.akka" %% "akka-stream" % "2.5.26"
 val akkaMarshalling = "com.typesafe.akka" %% "akka-http-spray-json" % "10.1.12"
 val akkaCors = "ch.megard" %% "akka-http-cors" % "1.0.0"
-
+enablePlugins(UniversalPlugin)
+enablePlugins(JavaAppPackaging)
 
 lazy val root = (project in file(".")).
   settings(
