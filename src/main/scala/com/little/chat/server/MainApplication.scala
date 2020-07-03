@@ -67,7 +67,7 @@ object MainApplication extends App {
 
   val bindingFuture = Http().bindAndHandle(route, "0.0.0.0", 8080)
   bindingFuture.onComplete {
-    case Success(_) ⇒ info("======= Service running success =========")
+    case Success(_) ⇒ println("======= Service running success =========")
     case Failure(e) ⇒
       println(s"Exception Binding failed with ${e.getMessage}")
       system.terminate()
