@@ -14,15 +14,16 @@ import com.little.chat.actors.BrokerCumConnectionManager
 import com.little.chat.actors.BrokerCumConnectionManager.{GetClients, Poll}
 import com.little.chat.response.Response.{ClientRegistered, ClientsResponse, PollSuccess, User, UserMessage}
 
+import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._
 import scala.io.StdIn
 
 
 object MainApplication extends App {
-  implicit val system = ActorSystem("chat-server")
-  implicit val materializer = ActorMaterializer()
+  implicit val system: ActorSystem = ActorSystem("chat-server")
+  implicit val materializer: ActorMaterializer = ActorMaterializer()
   // needed for the future flatMap/onComplete in the end
-  implicit val executionContext = system.dispatcher
+  implicit val executionContext: ExecutionContextExecutor = system.dispatcher
 
   val broker = system.actorOf(BrokerCumConnectionManager.props(), "broker-actor")
 
@@ -66,7 +67,7 @@ object MainApplication extends App {
 
   val bindingFuture = Http().bindAndHandle(route, "0.0.0.0", 8080)
 
-  println(s"Server online at http://localhost:8080/\nPress RETURN to stop...")
+  println(s"Server online at http://0.0.0.0:8080/\nPress RETURN to stop...")
   StdIn.readLine() // let it run until user presses return
   bindingFuture
     .flatMap(_.unbind()) // trigger unbinding from the port
