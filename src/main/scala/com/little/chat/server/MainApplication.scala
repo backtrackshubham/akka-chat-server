@@ -69,7 +69,7 @@ object MainApplication extends App {
   bindingFuture.onComplete {
     case Success(_) ⇒ info("======= Service running success =========")
     case Failure(e) ⇒
-      errorMessage(s"Exception Binding failed with ${e.getMessage}")
+      println(s"Exception Binding failed with ${e.getMessage}")
       system.terminate()
   }
 }
