@@ -39,28 +39,30 @@ object MainApplication extends App {
   val route = cors() {
     handleExceptions(myExceptionHandler) {
       implicit val timeout: Timeout = 5.seconds
-      path("poll" / JavaUUID) { id =>
-        get {
-          complete((broker ? Poll(id)).mapTo[PollSuccess])
-        }
-      } ~ path("login") {
-        post {
-          entity(as[User]) { registerRequest: User =>
-            broker ! registerRequest
-            complete(ClientRegistered(s"Client with ${registerRequest.id} successfully registered"))
+      pathPrefix("api") {
+        path("poll" / JavaUUID) { id =>
+          get {
+            complete((broker ? Poll(id)).mapTo[PollSuccess])
           }
-        }
-      } ~ path("send-message") {
-        post {
-          entity(as[UserMessage]) { userMessage: UserMessage =>
-            broker ! userMessage
-            complete(StatusCodes.OK)
+        } ~ path("login") {
+          post {
+            entity(as[User]) { registerRequest: User =>
+              broker ! registerRequest
+              complete(ClientRegistered(s"Client with ${registerRequest.id} successfully registered"))
+            }
           }
-        }
-      } ~ path("clients") {
-        get {
-          complete {
-            StatusCodes.OK -> (broker ? GetClients).mapTo[ClientsResponse]
+        } ~ path("send-message") {
+          post {
+            entity(as[UserMessage]) { userMessage: UserMessage =>
+              broker ! userMessage
+              complete(StatusCodes.OK)
+            }
+          }
+        } ~ path("clients") {
+          get {
+            complete {
+              StatusCodes.OK -> (broker ? GetClients).mapTo[ClientsResponse]
+            }
           }
         }
       }
