@@ -2,7 +2,7 @@ package com.little.chat.actors
 
 import java.util.UUID
 
-import akka.actor.{Actor, Props}
+import akka.actor.{Actor, Props, Stash}
 import akka.event.Logging
 import com.little.chat.response.Response.{ClientsResponse, PollFailed, PollSuccess, UnreadMessage, User, UserMessage}
 
@@ -24,7 +24,7 @@ object BrokerCumConnectionManager {
 }
 
 
-class BrokerCumConnectionManager(implicit val ex: ExecutionContext) extends Actor {
+class BrokerCumConnectionManager(implicit val ex: ExecutionContext) extends Actor with Stash {
 
   import BrokerCumConnectionManager._
   private val refreshStatusesInterval = context.system.scheduler.schedule(

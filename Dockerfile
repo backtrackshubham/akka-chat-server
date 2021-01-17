@@ -1,12 +1,9 @@
 FROM openjdk:8-jre-alpine
 
-RUN mkdir little-chat
+WORKDIR chat-server-app
 
-COPY \
-	target/universal/simple-chat-server-0.1.zip little-chat
+EXPOSE 8080
 
-RUN \
-	unzip little-chat/simple-chat-server-0.1.zip -d little-chat && \
-	rm -rf little-chat/simple-chat-server-0.1.zip
+COPY target/scala-2.12/simple-chat-server-assembly-0.1.jar .
 
-CMD java -cp "/little-chat/simple-chat-server-0.1/lib/*" com.little.chat.server.MainApplication
+ENTRYPOINT java -jar simple-chat-server-assembly-0.1.jar
