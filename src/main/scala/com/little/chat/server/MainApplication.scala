@@ -9,25 +9,29 @@ import akka.http.scaladsl.server.ExceptionHandler
 import akka.pattern.ask
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
+
 import scala.util.Success
 import scala.util.Failure
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 import com.little.chat.actors.BrokerCumConnectionManager
 import com.little.chat.actors.BrokerCumConnectionManager.{GetClients, Poll}
+import com.little.chat.repository.UserRepository
 import com.little.chat.response.Response.{ClientRegistered, ClientsResponse, PollSuccess, User, UserMessage}
+import com.little.chat.routes.AuthRoutes
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._
 import scala.io.StdIn
 
 
-object MainApplication extends App {
+object MainApplication extends App with AuthRoutes {
   implicit val system: ActorSystem = ActorSystem("chat-server")
   implicit val materializer: ActorMaterializer = ActorMaterializer()
   // needed for the future flatMap/onComplete in the end
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
 
   val broker = system.actorOf(BrokerCumConnectionManager.props(), "broker-actor")
+  override val userRepo = new UserRepository
 
 
   val myExceptionHandler = ExceptionHandler {
@@ -65,7 +69,7 @@ object MainApplication extends App {
             }
           }
         }
-      }
+      } ~ smyRoutes
     }
   }
 
