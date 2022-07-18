@@ -6,7 +6,10 @@ import com.little.chat.model.request.Request.{LoginRequest, RegisterUser}
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import akka.http.scaladsl.model.HttpHeader.ParsingResult.Ok
 import akka.http.scaladsl.server.Route
-import com.little.chat.repository.UserRepository
+import com.little.chat.util.Helpers
+
+import scala.concurrent.Future
+// import com.little.chat.repository.UserRepository
 import akka.http.scaladsl.server.Directives._
 import spray.json.DefaultJsonProtocol._
 import spray.json._
@@ -18,7 +21,7 @@ import scala.concurrent.ExecutionContext
 
 trait AuthRoutes {
 
-  val userRepo: UserRepository
+  // val userRepo: UserRepository
   implicit val executionContext: ExecutionContext
 
   lazy val smyRoutes: Route = pathPrefix("smy") {
@@ -33,8 +36,8 @@ trait AuthRoutes {
     post {
       entity(as[RegisterUser]) { req =>
         complete {
-          userRepo
-            .registerUser(req).map {
+          Future(Option(Helpers.dummyUser))
+            .map {
             case Some(userCreated) =>
               HttpResponse(StatusCodes.Created,
                 entity = HttpEntity(ContentTypes.`application/json`, userCreated.toJson.toString))
@@ -55,9 +58,9 @@ trait AuthRoutes {
   } ~ pathPrefix("checkUser" / Segment) { number: String =>
     get {
       complete{
-        userRepo.checkUserWithNumber(number) map {
+        Future(Option(Helpers.dummyUser)) map {
           case Some(value) =>
-            HttpResponse(entity = HttpEntity(ContentTypes.`application/json`, s"""{"response" : "User found with if ${value}"}"""))
+            HttpResponse(entity = HttpEntity(ContentTypes.`application/json`, s"""{"response" : "User found with if ${value.phoneNumber}"}"""))
           case None =>
             HttpResponse(entity = HttpEntity(ContentTypes.`application/json`, s"""{"error" : "User not found"}"""),
               status = StatusCodes.NotFound)

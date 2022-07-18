@@ -15,7 +15,7 @@ import scala.util.Failure
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 import com.little.chat.actors.BrokerCumConnectionManager
 import com.little.chat.actors.BrokerCumConnectionManager.{GetClients, Poll}
-import com.little.chat.repository.UserRepository
+// import com.little.chat.repository.UserRepository
 import com.little.chat.response.Response.{ClientRegistered, ClientsResponse, PollSuccess, User, UserMessage}
 import com.little.chat.routes.AuthRoutes
 
@@ -31,7 +31,7 @@ object MainApplication extends App with AuthRoutes {
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
 
   val broker = system.actorOf(BrokerCumConnectionManager.props(), "broker-actor")
-  override val userRepo = new UserRepository
+  // override val userRepo = new UserRepository
 
 
   val myExceptionHandler = ExceptionHandler {

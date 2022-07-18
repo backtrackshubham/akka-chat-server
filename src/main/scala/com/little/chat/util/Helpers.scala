@@ -1,6 +1,8 @@
 package com.little.chat.util
 
-object helpers {
+import com.little.chat.model.request.Request.UserCreatedResponse
+
+object Helpers {
   val chars = ('a' to 'z').toList.map(_.toString) ::: (0 to 9).toList.map(_.toString)
   val domains = List(
     "@gmail.com",
@@ -17,4 +19,12 @@ object helpers {
   }
 
   def dummyName = (1 to 10).map(_ => chars(util.Random.nextInt(chars.length))).mkString("")
+
+  def dummyUser: UserCreatedResponse = UserCreatedResponse(
+    java.util.UUID.randomUUID().toString,
+    dummyEmail,
+    dummyEmail,
+    dummyName,
+    "000000000"
+  )
 }
