@@ -19,6 +19,6 @@ trait Repository {
     "jdbc:h2:mem:test;MODE=MySQL;DATABASE_TO_UPPER=false;INIT=RUNSCRIPT FROM './src/main/resources/schema.sql'\\;RUNSCRIPT FROM './src/main/resources/initdata.sql'",     // connect URL (driver-specific)
     "root",                  // user
     "",                          // password
-    Blocker.liftExecutionContext(ExecutionContexts.fixedThreadPool(10) // just for testing
+    Blocker.liftExecutionContext(ExecutionContexts.fixedThreadPool(10)) // just for testing
   )
 }
