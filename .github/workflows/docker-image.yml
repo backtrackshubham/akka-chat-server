@@ -15,4 +15,4 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag shuhamknoldus/akka-chat-server:backend
+      run: docker build . --file github.dockerfile --tag shuhamknoldus/akka-chat-server:backend
