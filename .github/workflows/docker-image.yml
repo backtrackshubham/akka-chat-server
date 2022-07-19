@@ -15,4 +15,6 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build . --file github.dockerfile --tag shuhamknoldus/akka-chat-server:backend
+      env:
+        SUPER_SECRET: ${{ secrets.DOCKER_HUB_TOKEN }}
+      run: docker login --username shuhamknoldus --password $SUPER_SECRET; docker build . --file github.dockerfile --tag shuhamknoldus/akka-chat-server:backend; docker push shuhamknoldus/akka-chat-server:backend
